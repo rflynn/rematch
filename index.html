@@ -1,0 +1,132 @@
+<html>
+<head>
+  <title>realtime regex match</title>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <style type="text/css">
+    body, textarea { font: large Arial, sans-serif }
+    .match { border:1px solid Green; background-color: #ccffcc }
+    .nomatch { border:1px solid Red; background-color: #ffcccc }
+  </style>
+</head>
+
+<body>
+  <form>
+  <table>
+  <tr>
+    <th>regex
+    <td>
+      <textarea id="re" rows="1" cols="80">abcd*efg*h</textarea>
+
+  <tr>
+    <th>
+    <td>
+      <div id="re_out">
+        <span id="re_match" class="match"></span>
+        <span id="re_suf" class="nomatch"></span>
+      </div>
+
+  <tr>
+    <th>
+    <td>
+      <div id="txt_out">
+        <span id="txt_pre" class="nomatch"></span>
+        <span id="txt_match" class="match"></span>
+        <span id="txt_suf" class="nomatch"></span>
+      </div>
+
+  <tr>
+    <th>match
+    <td>
+      <textarea id="match" rows="5" cols="80">abcdddddeggggh</textarea>
+
+  </table>
+  </form>
+
+  <div id="test-section" style="display:none">
+    <h3>Tests</h3>
+    <table id="tests">
+  </div>
+</body>
+
+<script type="text/javascript">
+
+var Outputs = [
+  '#re_match', '#re_suf',
+  '#txt_pre', '#txt_match', '#txt_suf'
+];
+
+function showmatch(pattern, txt, p, match)
+{
+  var psuf = pattern.substr(p.length);
+  $('#re_match').text(p);
+  $('#re_suf').text(psuf);
+  var toff = txt.indexOf(match);
+  var tpre = txt.substr(0, toff);
+  var tsuf = txt.substr(toff + match.length);
+  $('#txt_pre').text(tpre);
+  $('#txt_match').text(match);
+  $('#txt_suf').text(tsuf);
+}
+
+function findmatch(pattern, txt)
+{
+  // reset output to known bad state
+  $.map(Outputs, function(val, i) { $(val).hide(); });
+  // search for matchs
+  var i;
+  for (i = pattern.length; i > 0; i--)
+  {
+    var p = pattern.substr(0, i);
+    try {
+      var r = new RegExp(p);
+      var match = r.exec(txt);
+      if (match != null)
+      {
+        showmatch(pattern, txt, p, match[0]+'');
+        break;
+      }
+    } catch (SyntaxError) {}
+  }
+  if (i == 0)
+  {
+    $('#re_pre').text(pattern);
+    $('#txt_pre').text(txt);
+  }
+  // make populated fields visible
+  $.map(Outputs, function(val, i) {
+    if ($(val).text())
+      $(val).show();
+  });
+}
+
+function domatch()
+{
+  var pattern = $('#re').val() + '';
+  var txt = $('#match').val() + '';
+  findmatch(pattern, txt);
+}
+
+$(document).ready(function() 
+{
+  domatch();
+  $('#re').keyup(domatch);
+  $('#match').keyup(domatch);
+});
+
+var Tests = [
+  // re, txt, pat patch, txt [pre,match,suf]
+  ["", "", "", ["","",""]],
+  ["abcd*efg*h", "abcdddddeggggh", "abcd*e", ["","abcddddde","ggggh"]]
+];
+
+function tests()
+{
+  for (var i = 0; i < Tests; i++)
+  {
+    
+  }
+}
+
+</script>
+
+</html>
